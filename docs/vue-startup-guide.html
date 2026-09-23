@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>vue-startup 案内帳</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --ground:#f5f8f6;
+  --surface:#ffffff;
+  --ink:#1f2d3a;
+  --ink-soft:#4d5d6b;
+  --line:#d7e2dc;
+  --accent:#2f9e6e;       /* Vue green, deepened for text contrast */
+  --accent-soft:#e2f3ea;
+  --navy:#35495e;
+  --code-bg:#eef3f0;
+  --warn:#b4541a;
+  --warn-soft:#fbeee4;
+  --sans:"Zen Kaku Gothic New","Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;
+  --mono:"JetBrains Mono",Consolas,"Courier New",monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --ground:#141b21; --surface:#1b242c; --ink:#e3ebe7; --ink-soft:#a3b3ab;
+    --line:#2c3a44; --accent:#5ccf9a; --accent-soft:#1c3329; --navy:#9fb4c9;
+    --code-bg:#11181d; --warn:#f0a06a; --warn-soft:#35251a;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --ground:#141b21; --surface:#1b242c; --ink:#e3ebe7; --ink-soft:#a3b3ab;
+  --line:#2c3a44; --accent:#5ccf9a; --accent-soft:#1c3329; --navy:#9fb4c9;
+  --code-bg:#11181d; --warn:#f0a06a; --warn-soft:#35251a;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.85;padding:0 20px}
+.wrap{max-width:960px;margin:0 auto;padding-block:48px 80px}
+h1,h2,h3{text-wrap:balance;line-height:1.35;margin:0}
+h1{font-size:clamp(28px,5vw,40px);font-weight:900;letter-spacing:.01em}
+h2{font-size:24px;font-weight:700;margin-bottom:14px}
+h3{font-size:17px;font-weight:700}
+p{margin:0}
+.prose{max-width:40em}
+.prose p + p{margin-top:.8em}
+code,pre{font-family:var(--mono);font-size:.88em}
+code{background:var(--code-bg);padding:.1em .4em;border-radius:4px}
+pre{background:var(--code-bg);padding:14px 16px;border-radius:8px;overflow-x:auto;margin:0;line-height:1.6}
+pre code{background:none;padding:0}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+.lead{font-size:17px;color:var(--ink-soft);margin-top:14px;max-width:38em}
+
+header{display:grid;gap:10px;padding-bottom:32px;border-bottom:1px solid var(--line)}
+.facts{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.chip{font-family:var(--mono);font-size:12.5px;padding:3px 10px;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--ink-soft)}
+.chip b{color:var(--ink);font-weight:600}
+
+nav.toc{display:flex;flex-wrap:wrap;gap:6px 18px;padding-block:18px;font-size:14px}
+nav.toc a{color:var(--ink-soft);text-decoration:none;border-bottom:1px dashed var(--line)}
+nav.toc a:hover,nav.toc a:focus-visible{color:var(--accent);border-color:var(--accent)}
+
+section{padding-top:52px}
+section > .eyebrow{display:block;margin-bottom:6px}
+
+/* ---------- file explorer ---------- */
+.explorer{display:grid;grid-template-columns:minmax(220px,300px) 1fr;border:1px solid var(--line);border-radius:10px;background:var(--surface);overflow:hidden}
+.tree{border-right:1px solid var(--line);padding:12px 0;font-family:var(--mono);font-size:13.5px}
+.tree ul{list-style:none;margin:0;padding:0}
+.tree ul ul{padding-left:18px}
+.tree .dir{padding:3px 16px;color:var(--ink-soft)}
+.tree button{all:unset;cursor:pointer;display:flex;align-items:center;gap:8px;width:100%;padding:3px 16px;box-sizing:border-box;color:var(--ink)}
+.tree button:hover{background:var(--accent-soft)}
+.tree button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.tree button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.tag{font-size:10.5px;padding:0 6px;border-radius:3px;background:var(--accent);color:var(--surface);font-weight:600;letter-spacing:.04em}
+.tag.cfg{background:var(--navy)}
+.tag.dim{background:none;color:var(--ink-soft);border:1px solid var(--line)}
+.detail{padding:22px 26px;display:grid;gap:12px;align-content:start;min-width:0}
+.detail .path{font-family:var(--mono);font-size:13px;color:var(--ink-soft)}
+.detail .role{font-size:13px;color:var(--accent);font-weight:700}
+.detail p{max-width:36em}
+.detail .touch{font-size:14px;padding:10px 14px;border-left:3px solid var(--accent);background:var(--accent-soft);border-radius:0 6px 6px 0}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:10px;font-size:13px;color:var(--ink-soft)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+
+/* ---------- flow ---------- */
+.flow{display:grid;gap:0;margin-top:18px;counter-reset:step}
+.step{display:grid;grid-template-columns:44px 1fr;gap:16px;position:relative;padding-bottom:24px}
+.step::before{counter-increment:step;content:counter(step);width:34px;height:34px;border-radius:50%;background:var(--surface);border:2px solid var(--accent);color:var(--accent);font-weight:700;display:grid;place-items:center;font-family:var(--mono);font-size:14px;z-index:1}
+.step:not(:last-child)::after{content:"";position:absolute;left:17px;top:34px;bottom:0;width:2px;background:var(--line)}
+.step .body{display:grid;gap:8px;min-width:0;padding-top:4px}
+.step .file{font-family:var(--mono);font-size:13px;color:var(--ink-soft)}
+
+/* ---------- compare ---------- */
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px}
+.mode{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px 22px;display:grid;gap:10px;align-content:start}
+.mode .metaphor{font-size:13px;color:var(--ink-soft)}
+.mode dl{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:4px 0 0;font-size:14px}
+.mode dt{color:var(--ink-soft)}
+.mode dd{margin:0}
+
+/* ---------- path diagram ---------- */
+.pathbox{margin-top:18px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px 22px;display:grid;gap:14px}
+.row{display:grid;grid-template-columns:150px 1fr auto;gap:12px;align-items:center;font-size:14px}
+.row .where{font-family:var(--mono);font-size:13px;overflow-wrap:anywhere}
+.ok{color:var(--accent);font-weight:700}
+.ng{color:var(--warn);font-weight:700}
+.note{background:var(--warn-soft);border-radius:8px;padding:12px 16px;font-size:14px}
+.done{background:var(--accent-soft);border-radius:8px;padding:12px 16px;font-size:14px}
+
+/* ---------- next ---------- */
+.tasks{list-style:none;padding:0;margin:18px 0 0;display:grid;gap:10px}
+.tasks li{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px 18px;display:grid;gap:4px}
+.tasks .lv{font-family:var(--mono);font-size:11.5px;color:var(--accent);letter-spacing:.08em;font-weight:600}
+
+footer{margin-top:64px;padding-top:18px;border-top:1px solid var(--line);font-size:13px;color:var(--ink-soft)}
+
+@media (max-width:720px){
+  .explorer{grid-template-columns:1fr}
+  .tree{border-right:none;border-bottom:1px solid var(--line)}
+  .compare{grid-template-columns:1fr}
+  .row{grid-template-columns:1fr auto}
+  .row .how{grid-column:1/-1;font-weight:700}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+<header>
+  <span class="eyebrow">D:\Git\vue_create\vue-startup</span>
+  <h1>vue-startup 案内帳</h1>
+  <p class="lead">Vue CLI の <code>vue create</code> で作った直後の Vue 3 プロジェクトを見て回るためのガイドです。どのファイルが何をしているか、画面が出るまでの流れ、<code>serve</code> と <code>build</code> の違いを順に説明します。</p>
+  <div class="facts">
+    <span class="chip">vue <b>3.2</b></span>
+    <span class="chip">@vue/cli-service <b>5.0</b></span>
+    <span class="chip">babel + eslint</span>
+    <span class="chip">Options API</span>
+    <span class="chip">publicPath <b>'./'</b></span>
+  </div>
+</header>
+
+<nav class="toc" aria-label="目次">
+  <a href="#map">フォルダの地図</a>
+  <a href="#flow">画面が出るまで</a>
+  <a href="#modes">serve と build</a>
+  <a href="#path">ダブルクリック問題</a>
+  <a href="#next">次にやること</a>
+</nav>
+
+<section id="map">
+  <span class="eyebrow">Map</span>
+  <h2>フォルダの地図</h2>
+  <p class="prose">左のファイル名をクリックすると、右にそのファイルの役割が出ます。普段さわるのは <b>src/</b> の中がほとんどです。</p>
+  <div class="legend">
+    <span><span class="tag">よく触る</span> 開発中に編集する</span>
+    <span><span class="tag cfg">設定</span> ときどき編集する</span>
+    <span><span class="tag dim">自動</span> 基本は触らない</span>
+  </div>
+
+  <div class="explorer" style="margin-top:14px">
+    <div class="tree" role="group" aria-label="ファイル一覧">
+      <ul>
+        <li><div class="dir">vue-startup/</div>
+          <ul>
+            <li><div class="dir">public/</div>
+              <ul>
+                <li><button type="button" data-f="index">index.html <span class="tag cfg">設定</span></button></li>
+                <li><button type="button" data-f="favicon">favicon.ico</button></li>
+              </ul>
+            </li>
+            <li><div class="dir">src/</div>
+              <ul>
+                <li><button type="button" data-f="main">main.js <span class="tag">よく触る</span></button></li>
+                <li><button type="button" data-f="app" aria-pressed="true">App.vue <span class="tag">よく触る</span></button></li>
+                <li><div class="dir">components/</div>
+                  <ul><li><button type="button" data-f="hello">HelloWorld.vue <span class="tag">よく触る</span></button></li></ul>
+                </li>
+                <li><div class="dir">assets/</div>
+                  <ul><li><button type="button" data-f="logo">logo.png</button></li></ul>
+                </li>
+              </ul>
+            </li>
+            <li><button type="button" data-f="pkg">package.json <span class="tag cfg">設定</span></button></li>
+            <li><button type="button" data-f="lock">package-lock.json <span class="tag dim">自動</span></button></li>
+            <li><button type="button" data-f="vueconfig">vue.config.js <span class="tag cfg">設定</span></button></li>
+            <li><button type="button" data-f="babel">babel.config.js <span class="tag dim">自動</span></button></li>
+            <li><button type="button" data-f="jsconfig">jsconfig.json <span class="tag dim">自動</span></button></li>
+            <li><button type="button" data-f="nm">node_modules/ <span class="tag dim">自動</span></button></li>
+            <li><button type="button" data-f="dist">dist/ <span class="tag dim">自動</span></button></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+    <div class="detail" id="detail" aria-live="polite"></div>
+  </div>
+</section>
+
+<section id="flow">
+  <span class="eyebrow">Flow</span>
+  <h2>画面が出るまでの流れ</h2>
+  <p class="prose">ブラウザにページが表示されるまでに、ファイルがこの順番でつながっています。</p>
+  <div class="flow">
+    <div class="step"><div class="body">
+      <span class="file">public/index.html</span>
+      <h3>空っぽの入れ物を用意する</h3>
+      <p>HTML には <code>&lt;div id="app"&gt;&lt;/div&gt;</code> しかありません。中身はまだ空です。</p>
+    </div></div>
+    <div class="step"><div class="body">
+      <span class="file">src/main.js</span>
+      <h3>Vue アプリを起動して、入れ物にはめ込む</h3>
+<pre><code>createApp(App).mount('#app')</code></pre>
+      <p>「App.vue をもとにアプリを作り、<code>#app</code> の場所に表示して」という命令です。</p>
+    </div></div>
+    <div class="step"><div class="body">
+      <span class="file">src/App.vue</span>
+      <h3>画面の一番外側を組み立てる</h3>
+<pre><code>&lt;img alt="Vue logo" src="./assets/logo.png"&gt;
+&lt;HelloWorld msg="Welcome to Your Vue.js App"/&gt;</code></pre>
+      <p>ロゴ画像を置いて、部品 <code>HelloWorld</code> に文字（<code>msg</code>）を渡しています。</p>
+    </div></div>
+    <div class="step"><div class="body">
+      <span class="file">src/components/HelloWorld.vue</span>
+      <h3>受け取った文字を表示する</h3>
+<pre><code>&lt;h1&gt;{{ msg }}&lt;/h1&gt;</code></pre>
+      <p><code>props</code> で受け取った <code>msg</code> が見出しとして表示されます。<code>{{ }}</code> は「ここに値を入れて」という Vue の書き方です。</p>
+    </div></div>
+  </div>
+</section>
+
+<section id="modes">
+  <span class="eyebrow">Serve / Build</span>
+  <h2>serve と build の違い</h2>
+  <p class="prose">どちらも <code>.vue</code> をブラウザが読める HTML・JS・CSS に変換します。違うのは、その結果を<b>どう使うか</b>です。</p>
+  <div class="compare">
+    <div class="mode">
+<pre><code>npm run serve</code></pre>
+      <h3>開発サーバー</h3>
+      <p class="metaphor">たとえるなら「試着室」</p>
+      <p>自分の PC の中だけで動く一時的な Web サーバーです。変換した結果をメモリに置いてブラウザに渡し、ファイルを保存するとすぐ画面に反映します。</p>
+      <dl>
+        <dt>見方</dt><dd><code>http://localhost:8080</code></dd>
+        <dt>見られる人</dt><dd>自分だけ</dd>
+        <dt>止めると</dt><dd>見られなくなる</dd>
+        <dt>ファイル</dt><dd>何も残らない</dd>
+      </dl>
+    </div>
+    <div class="mode">
+<pre><code>npm run build</code></pre>
+      <h3>ビルド</h3>
+      <p class="metaphor">たとえるなら「完成品の梱包」</p>
+      <p>変換・圧縮した完成品を <code>dist/</code> フォルダに書き出します。一度作れば、あとは動かし続ける必要はありません。</p>
+      <dl>
+        <dt>見方</dt><dd>Web サーバーに置く</dd>
+        <dt>見られる人</dt><dd>公開すれば誰でも</dd>
+        <dt>止めると</dt><dd>止めるものがない</dd>
+        <dt>ファイル</dt><dd><code>dist/</code> に残る</dd>
+      </dl>
+    </div>
+  </div>
+  <p class="prose" style="margin-top:14px"><code>localhost</code> は「このパソコン自身」、<code>8080</code> は「その中の 8080 番の窓口（ポート番号）」という意味です。</p>
+</section>
+
+<section id="path">
+  <span class="eyebrow">publicPath</span>
+  <h2>build した HTML をダブルクリックすると真っ白だった理由</h2>
+  <p class="prose">変換はうまくいっていました。問題は、HTML が JS ファイルを探す<b>場所の書き方</b>でした。初期設定のビルドでは、<code>dist/index.html</code> にこう書かれます。</p>
+<pre style="margin-top:12px"><code>&lt;script src="<b>/</b>js/app.8ae8acae.js"&gt;&lt;/script&gt;</code></pre>
+  <p class="prose" style="margin-top:12px">先頭の <code>/</code> は「一番上の階層から探す」という意味です。何が「一番上」になるかは、開き方で変わります。</p>
+  <div class="pathbox">
+    <div class="row"><span class="how">サーバーで開く</span><span class="where">http://example.com/js/app.js</span><span class="ok">見つかる</span></div>
+    <div class="row"><span class="how">ダブルクリック</span><span class="where">D:\js\app.js（Dドライブ直下）</span><span class="ng">無い</span></div>
+    <div class="note">JS が読み込めないので、空の <code>&lt;div id="app"&gt;</code> だけが表示されて真っ白になります。F12 のコンソールには <code>ERR_FILE_NOT_FOUND</code> が出ます。</div>
+    <div class="done">このプロジェクトでは <code>vue.config.js</code> に <code>publicPath: './'</code> を追加済みです。今の <code>dist/index.html</code> は <code>js/app.8ae8acae.js</code>（HTML と同じフォルダから探す）になっているので、ダブルクリックでも表示されます。</div>
+  </div>
+  <p class="prose" style="margin-top:14px">注意：あとで vue-router の履歴モード（URL が <code>/about</code> のようになる形）を使うと、ダブルクリックではまた表示が崩れます。そのときは <code>npx serve dist</code> のように簡易サーバーで <code>dist</code> を開いて確認してください。</p>
+</section>
+
+<section id="next">
+  <span class="eyebrow">Next</span>
+  <h2>次にやってみること</h2>
+  <p class="prose">上から順に、少しずつ難しくなります。どれも <code>npm run serve</code> を起動したまま試すと、保存するたびに結果が見えます。</p>
+  <ol class="tasks">
+    <li><span class="lv">STEP 1</span><b>文字を変える</b><span><code>App.vue</code> の <code>msg="…"</code> を好きな文字にして保存し、画面が変わるのを確認する。</span></li>
+    <li><span class="lv">STEP 2</span><b>いらないものを消す</b><span><code>HelloWorld.vue</code> のリンク集を消して、自分の文章に置き換える。</span></li>
+    <li><span class="lv">STEP 3</span><b>自分の部品を作る</b><span><code>components/</code> に新しい <code>.vue</code> ファイルを作り、<code>App.vue</code> で読み込んで表示する。</span></li>
+    <li><span class="lv">STEP 4</span><b>動きをつける</b><span><code>data()</code> で数字を持ち、ボタンを押すと増えるカウンターを作る（<code>@click</code> を使う）。</span></li>
+  </ol>
+</section>
+
+<footer>vue-startup（Vue 3 + Vue CLI 5）用のガイドです。Vue CLI は現在メンテナンスのみの状態です。新しいプロジェクトを作るときは Vite（<code>npm create vue@latest</code>）が公式のおすすめです。</footer>
+</div>
+
+<script>
+const FILES = {
+  index:{path:"public/index.html",role:"HTML のひな形",
+    body:"ブラウザが最初に読む HTML です。中にある <code>&lt;div id=\"app\"&gt;&lt;/div&gt;</code> が、Vue アプリを表示する入れ物になります。<code>&lt;%= ... %&gt;</code> の部分は、ビルドするときにタイトルなどが自動で入る目印です。",
+    touch:"ページのタイトルや、外部フォントの読み込みを追加したいときに編集します。"},
+  favicon:{path:"public/favicon.ico",role:"タブのアイコン",
+    body:"ブラウザのタブに出る小さなアイコンです。<code>public/</code> に置いたファイルは変換されず、そのまま <code>dist/</code> にコピーされます。",
+    touch:"自分のアイコン画像に差し替えるときだけ触ります。"},
+  main:{path:"src/main.js",role:"アプリの起動スイッチ",
+    body:"すべての出発点です。<code>createApp(App).mount('#app')</code> で、App.vue をもとにアプリを作り、index.html の <code>#app</code> に表示します。",
+    touch:"vue-router や Pinia などを追加したときに、ここで登録します（<code>.use(router)</code> など）。"},
+  app:{path:"src/App.vue",role:"画面の一番外側の部品",
+    body:"ほかの部品をまとめる親コンポーネントです。1つの <code>.vue</code> ファイルは <code>&lt;template&gt;</code>（見た目）、<code>&lt;script&gt;</code>（動き）、<code>&lt;style&gt;</code>（デザイン）の3つでできています。",
+    touch:"画面全体のレイアウトを作るときの中心になります。まずはここの <code>msg</code> を書き換えてみましょう。"},
+  hello:{path:"src/components/HelloWorld.vue",role:"サンプルの部品",
+    body:"<code>props</code> で受け取った <code>msg</code> を見出しに表示して、その下に公式サイトへのリンクを並べています。<code>&lt;style scoped&gt;</code> と書くと、その CSS はこの部品の中にだけ効きます。",
+    touch:"練習用のサンプルです。書き換えても消してもかまいません。"},
+  logo:{path:"src/assets/logo.png",role:"画像素材",
+    body:"App.vue から読み込んでいる Vue のロゴです。<code>src/assets/</code> の画像はビルドのときに処理され、ファイル名にハッシュ（例: <code>logo.82b9c7a5.png</code>）が付きます。",
+    touch:"自分の画像を使うときは、ここに置いて <code>./assets/ファイル名</code> で読み込みます。"},
+  pkg:{path:"package.json",role:"プロジェクトの設計図",
+    body:"使っているパッケージ（<code>dependencies</code> / <code>devDependencies</code>）と、<code>npm run ○○</code> で動くコマンド（<code>scripts</code>）が書かれています。ESLint の設定と対象ブラウザ（<code>browserslist</code>）もここにあります。",
+    touch:"<code>npm install パッケージ名</code> を実行すると自動で書き足されます。手で直すのはスクリプトを追加するときくらいです。"},
+  lock:{path:"package-lock.json",role:"インストールした版の記録",
+    body:"実際に入ったパッケージの正確なバージョンを記録したファイルです。ほかの PC で <code>npm install</code> しても、同じバージョンが入るようにするためのものです。",
+    touch:"手で編集しません。git には含めておきます。"},
+  vueconfig:{path:"vue.config.js",role:"Vue CLI の設定",
+    body:"ビルドや開発サーバーの動きを変える設定ファイルです。今は <code>transpileDependencies: true</code>（ライブラリも古いブラウザ向けに変換する）と <code>publicPath: './'</code>（ビルド結果を相対パスにする）が入っています。",
+    touch:"開発サーバーのポート番号や、公開先のパスを変えたいときに編集します。"},
+  babel:{path:"babel.config.js",role:"JS の変換設定",
+    body:"新しい書き方の JavaScript を、古いブラウザでも動く形に変換するツール Babel の設定です。Vue CLI 標準の設定をそのまま使っています。",
+    touch:"基本的に触りません。"},
+  jsconfig:{path:"jsconfig.json",role:"エディタ向けの設定",
+    body:"VS Code などのエディタに、プロジェクトの構成を教えるファイルです。<code>@/</code> を <code>src/</code> として扱う設定があるので、<code>import X from '@/components/X.vue'</code> のように書いても補完が効きます。",
+    touch:"基本的に触りません。"},
+  nm:{path:"node_modules/",role:"ダウンロードしたパッケージ置き場",
+    body:"<code>npm install</code> でダウンロードしたパッケージが全部入っています。とても大きいので、<code>.gitignore</code> で git の管理から外してあります。",
+    touch:"絶対に手で編集しません。調子が悪いときは、消してから <code>npm install</code> し直せば元に戻ります。"},
+  dist:{path:"dist/",role:"ビルドの完成品",
+    body:"<code>npm run build</code> で作られる、公開用のファイル一式です。<code>.vue</code> は HTML・JS・CSS に変換・圧縮されています。ビルドするたびに作り直されます。",
+    touch:"編集しません。公開するときは、このフォルダの中身をサーバーに置きます。"}
+};
+const detail = document.getElementById('detail');
+const buttons = document.querySelectorAll('.tree button');
+function show(key){
+  const f = FILES[key];
+  detail.innerHTML =
+    '<span class="path">'+f.path+'</span>'+
+    '<span class="role">'+f.role+'</span>'+
+    '<p>'+f.body+'</p>'+
+    '<div class="touch">'+f.touch+'</div>';
+  buttons.forEach(b => b.setAttribute('aria-pressed', b.dataset.f === key ? 'true' : 'false'));
+}
+buttons.forEach(b => b.addEventListener('click', () => show(b.dataset.f)));
+show('app');
+</script>
+</body>
+</html>
